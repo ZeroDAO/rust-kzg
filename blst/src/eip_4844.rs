@@ -6,17 +6,17 @@ use alloc::string::String;
 use alloc::string::ToString;
 use alloc::vec;
 use alloc::vec::Vec;
-#[cfg(feature = "std")]
+#[cfg(all(feature = "setup", feature = "std"))]
 use libc::FILE;
-#[cfg(feature = "std")]
+#[cfg(all(feature = "setup", feature = "std"))]
 use std::fs::File;
-#[cfg(feature = "std")]
+#[cfg(all(feature = "setup", feature = "std"))]
 use std::io::Read;
 
 use blst::{blst_fr, blst_fr_from_scalar, blst_p1, blst_p2, blst_scalar, blst_scalar_from_lendian};
 use kzg::{cfg_into_iter, FFTSettings, Fr, G1Mul, KZGSettings, Poly, FFTG1, G1, G2};
 
-#[cfg(feature = "std")]
+#[cfg(all(feature = "setup", feature = "std"))]
 use kzg::eip_4844::load_trusted_setup_string;
 
 use kzg::eip_4844::{
@@ -71,6 +71,7 @@ pub fn bytes_to_blob(bytes: &[u8]) -> Result<Vec<FsFr>, String> {
         .collect()
 }
 
+#[cfg(feature = "setup")]
 #[allow(clippy::useless_conversion)]
 fn load_trusted_setup_rust(g1_bytes: &[u8], g2_bytes: &[u8]) -> FsKZGSettings {
     let num_g1_points = g1_bytes.len() / BYTES_PER_G1;
@@ -118,7 +119,7 @@ fn load_trusted_setup_rust(g1_bytes: &[u8], g2_bytes: &[u8]) -> FsKZGSettings {
     }
 }
 
-#[cfg(feature = "std")]
+#[cfg(all(feature = "setup", feature = "std"))]
 pub fn load_trusted_setup_filename_rust(filepath: &str) -> FsKZGSettings {
     let mut file = File::open(filepath).expect("Unable to open file");
     let mut contents = String::new();
@@ -722,6 +723,7 @@ pub unsafe extern "C" fn blob_to_kzg_commitment(
 }
 
 /// # Safety
+#[cfg(feature = "setup")]
 #[no_mangle]
 pub unsafe extern "C" fn load_trusted_setup(
     out: *mut CKZGSettings,
@@ -739,7 +741,7 @@ pub unsafe extern "C" fn load_trusted_setup(
 }
 
 /// # Safety
-#[cfg(feature = "std")]
+#[cfg(all(feature = "setup", feature = "std"))]
 #[no_mangle]
 pub unsafe extern "C" fn load_trusted_setup_file(
     out: *mut CKZGSettings,
